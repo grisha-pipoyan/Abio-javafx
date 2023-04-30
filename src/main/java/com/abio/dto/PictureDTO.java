@@ -1,16 +1,16 @@
-package com.abio.persistance.model.addData;
+package com.abio.dto;
 
-public class PictureAddModel {
+public class PictureDTO {
 
     private String name;
     private String base64Picture;
 
-    public PictureAddModel(String name, String base64Picture) {
+    public PictureDTO(String name, String base64Picture) {
         this.name = name;
         this.base64Picture = base64Picture;
     }
 
-    public PictureAddModel() {
+    public PictureDTO() {
     }
 
     public String getName() {

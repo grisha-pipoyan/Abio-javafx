@@ -1,7 +1,7 @@
 package com.abio.controller;
 
 import com.abio.service.JavaFxHandling;
-import com.abio.service.AbioService;
+import com.abio.service.UserService;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -32,7 +32,7 @@ public class MainController {
     private JavaFxHandling javaFxHandling;
 
     @Autowired
-    private AbioService abioService;
+    private UserService userService;
 
     private String authorizationToken;
 
@@ -58,7 +58,8 @@ public class MainController {
 
             try {
                 //authorizationToken = abioService.initiate(login, password);
-                authorizationToken = abioService.initiate("abio@gmail.com", "password");
+                authorizationToken = userService.initiate("abio@gmail.com", "password");
+                authorizationToken = "Bearer " + authorizationToken;
                 if (authorizationToken == null || authorizationToken.equals("")) {
                     throw new Exception("Системная ошибка. Пожалуйста, повторите попытку позже.");
                 }

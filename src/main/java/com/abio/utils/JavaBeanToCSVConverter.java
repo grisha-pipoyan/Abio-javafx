@@ -1,29 +1,18 @@
 package com.abio.utils;
 
-import com.abio.csv.model.*;
-import com.opencsv.CSVWriter;
-import com.opencsv.bean.CsvToBeanBuilder;
-import eu.europa.esig.dss.model.FileDocument;
-import eu.europa.esig.dss.model.InMemoryDocument;
-import eu.europa.esig.dss.spi.DSSUtils;
+import com.abio.dto.*;
 import javafx.collections.ObservableList;
 
-import java.beans.PropertyDescriptor;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class JavaBeanToCSVConverter {
 
-    public static ProductModelAdd convertListToProductModelAdmin(ObservableList<String> element) {
+    public static ProductAdminDTO convertListToProductModelAdmin(ObservableList<String> element) {
 
-        ProductModelAdd product = new ProductModelAdd();
+        ProductAdminDTO product = new ProductAdminDTO();
 
         if (!Objects.equals(element.get(0), "")) {
             product.setProductCode(element.get(0));
@@ -63,28 +52,32 @@ public class JavaBeanToCSVConverter {
         }
 
         if (!Objects.equals(element.get(23), "")) {
-            product.setDisplay(Boolean.valueOf(element.get(23)));
+            product.setEnabled(Boolean.valueOf(element.get(23)));
+        }
+
+        if (!Objects.equals(element.get(24), "")) {
+            product.setHasPictures(Boolean.valueOf(element.get(23)));
         }
 
         return product;
 
     }
 
-    public static Video convertListToVideo(ObservableList<String> element) {
-        Video video = new Video();
-        video.setId(Long.valueOf(element.get(0)));
+    public static VideoAdminDTO convertListToVideo(ObservableList<String> element) {
+        VideoAdminDTO videoAdminDTO = new VideoAdminDTO();
+        videoAdminDTO.setId(Long.valueOf(element.get(0)));
 
-        video.setTitle_en(element.get(1));
-        video.setTitle_ru(element.get(2));
-        video.setTitle_am(element.get(3));
+        videoAdminDTO.setTitle_en(element.get(1));
+        videoAdminDTO.setTitle_ru(element.get(2));
+        videoAdminDTO.setTitle_am(element.get(3));
 
-        video.setDescription_en(element.get(4));
-        video.setDescription_ru(element.get(5));
-        video.setDescription_am(element.get(6));
-        video.setDate(element.get(7));
-        video.setUrl(element.get(8));
+        videoAdminDTO.setDescription_en(element.get(4));
+        videoAdminDTO.setDescription_ru(element.get(5));
+        videoAdminDTO.setDescription_am(element.get(6));
+        videoAdminDTO.setDate(element.get(7));
+        videoAdminDTO.setUrl(element.get(8));
 
-        return video;
+        return videoAdminDTO;
     }
 
     public static BlacklistedCustomer convertListToBlacklistCustomer(ObservableList<String> element) {
@@ -152,72 +145,5 @@ public class JavaBeanToCSVConverter {
 
         return List.of(values);
     }
-
-    public static <T> byte[] convertProductsToCSV(ObservableList<ObservableList<String>> beans,
-                                                  String[] columns, String fileName) throws IOException {
-
-        // Create a new CSV file
-        File file = new File(fileName);
-        FileWriter outPutFile = new FileWriter(file);
-
-        CSVWriter writer = new CSVWriter(outPutFile);
-
-        writer.writeNext(columns);
-
-        for (ObservableList<String> row : beans) {
-            writer.writeNext(row.toArray(new String[0]));
-        }
-        writer.close();
-        outPutFile.close();
-
-        byte[] bytes = DSSUtils.toByteArray(new FileDocument(new File(fileName)));
-
-        if (!file.delete()) {
-            String error = String.format("Can not delete file: %s", fileName);
-            throw new IOException(error);
-        }
-
-        return bytes;
-    }
-
-    public static <T> byte[] convertProductToCSV(List<T> beans, String[] columns, String fileName) throws IOException {
-        try (CSVWriter writer = new CSVWriter(new FileWriter(fileName))) {
-            // Write the column headers to the CSV file
-            writer.writeNext(columns);
-
-            // Iterate over each bean and write its property values to the CSV file
-            for (T bean : beans) {
-                List<String> values = new ArrayList<>();
-                for (String column : columns) {
-                    PropertyDescriptor propertyDescriptor = new PropertyDescriptor(column, bean.getClass());
-                    Object value = propertyDescriptor.getReadMethod().invoke(bean);
-                    values.add(value != null ? value.toString() : "");
-                }
-                writer.writeNext(values.toArray(new String[0]));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        byte[] bytes = DSSUtils.toByteArray(new FileDocument(new File(fileName)));
-
-        File file = new File(fileName);
-        if (!file.delete()) {
-            String error = String.format("Can not delete file: %s", fileName);
-            throw new IOException(error);
-        }
-
-        return bytes;
-    }
-
-    public static <T> List<T> convertToJavaBean(InMemoryDocument inMemoryDocument, Class<T> beanClass) {
-        return new CsvToBeanBuilder<T>(new InputStreamReader(inMemoryDocument.openStream()))
-                .withType(beanClass)
-                .withSeparator(',')
-                .withIgnoreLeadingWhiteSpace(true)
-                .build()
-                .parse();
-    }
-
 
 }

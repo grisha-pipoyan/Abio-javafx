@@ -1,11 +1,10 @@
-package com.abio.csv.model;
+package com.abio.dto;
 
 import java.math.BigDecimal;
 
 public class DeliveryRegion {
 
     private Long Id;
-
     private String name_en;
     private String name_ru;
     private String name_am;

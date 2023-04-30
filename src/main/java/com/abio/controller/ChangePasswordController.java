@@ -1,7 +1,7 @@
 package com.abio.controller;
 
 import com.abio.service.JavaFxHandling;
-import com.abio.service.AbioService;
+import com.abio.service.UserService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -24,7 +24,7 @@ public class ChangePasswordController {
     private JavaFxHandling javaFxHandling;
 
     @Autowired
-    private AbioService abioService;
+    private UserService userService;
 
     @FXML
     void initialize(String authorizationToken) {
@@ -40,7 +40,7 @@ public class ChangePasswordController {
             }
 
             try {
-                abioService.changePassword(oldPassword.getText(), newPassword.getText(), authorizationToken);
+                userService.changePassword(oldPassword.getText(), newPassword.getText(), authorizationToken);
                 javaFxHandling.showAlert("Пароль успешно изменен.");
             } catch (Exception e) {
                 javaFxHandling.throwException(e.getMessage());

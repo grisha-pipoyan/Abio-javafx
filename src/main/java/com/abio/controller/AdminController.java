@@ -1,9 +1,7 @@
 package com.abio.controller;
 
-import com.abio.csv.model.*;
-import com.abio.rest.CurrentStatusEnum;
-import com.abio.service.AbioService;
-import com.abio.service.JavaFxHandling;
+import com.abio.dto.*;
+import com.abio.service.*;
 import com.abio.utils.JavaBeanToCSVConverter;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
@@ -16,13 +14,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -40,7 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.abio.rest.CurrentStatusEnum.*;
+import static com.abio.dto.CurrentStatusEnum.*;
 import static com.abio.utils.JavaBeanToCSVConverter.convertStringToLong;
 
 @Component
@@ -73,8 +70,6 @@ public class AdminController {
     @FXML
     private MenuItem refreshBlacklist;
 
-    @FXML
-    private MenuItem refreshGiftCards;
 
     @FXML
     private MenuItem refreshOrders;
@@ -85,10 +80,17 @@ public class AdminController {
     private MenuItem refreshProducts;
 
     @FXML
-    private MenuItem filterByQuantityProducts;
-
+    private Menu filterMenu;
     @FXML
-    private MenuItem filterByQuantityServices;
+    private MenuItem filterByQuantityProducts;
+    @FXML
+    private MenuItem filterByHavingDescription;
+    @FXML
+    private MenuItem filterByHavingPictures;
+    @FXML
+    private MenuItem filterByHavingTextInName;
+    @FXML
+    private MenuItem filterByProductCode;
 
     @FXML
     private MenuItem refreshPromoCodes;
@@ -100,9 +102,6 @@ public class AdminController {
     private MenuItem refreshRegions1;
 
     @FXML
-    private MenuItem refreshServices;
-
-    @FXML
     private MenuItem refreshVideos;
 
     @FXML
@@ -112,7 +111,17 @@ public class AdminController {
     private TableView<ObservableList<String>> productTableView;
 
     @Autowired
-    private AbioService abioService;
+    private ProductService productService;
+    @Autowired
+    private BlacklistCustomerService blacklistCustomerService;
+    @Autowired
+    private DeliverRegionService deliverRegionService;
+    @Autowired
+    private VideoService videoService;
+    @Autowired
+    private PromoCodeService promoCodeService;
+    @Autowired
+    private OrderService orderService;
 
     @Autowired
     private JavaFxHandling javaFxHandling;
@@ -123,16 +132,22 @@ public class AdminController {
     @Value("classpath:/fxml/ChangePasswordControllerPage.fxml")
     private Resource changePasswordControllerResource;
 
-
-    private final SimpleObjectProperty<CurrentStatusEnum> currentStatus = new SimpleObjectProperty<>(NULL);
+    private SimpleObjectProperty<CurrentStatusEnum> currentStatus;
 
     private byte[] csv;
 
+    private String authorizationToken;
+
     @FXML
-    void initialize(ApplicationContext applicationContext, String authorizationToken) {
+    void initialize(ApplicationContext applicationContext, String authorizationTokenTemp) {
+
+        this.authorizationToken = authorizationTokenTemp;
+        this.currentStatus = new SimpleObjectProperty<>(PRODUCT);
 
         this.productTableView.getItems().clear();
         initializeTable();
+
+        initializeProductFilters();
 
         this.deleteButton.disableProperty().bind(productTableView.getSelectionModel().selectedItemProperty().isNull()
                 .or(currentStatus.isEqualTo(ORDER)));
@@ -155,94 +170,19 @@ public class AdminController {
             try {
                 currentStatus.set(PRODUCT);
                 resetTableView();
-                this.csv = abioService.getAllProductsCSV(authorizationToken, 0);
+                this.csv = productService.getAllProductsCSV(authorizationToken);
                 loadTable(csv);
             } catch (Exception e) {
                 javaFxHandling.throwException(e.getMessage());
             }
         });
 
-        this.filterByQuantityProducts.setOnAction(event -> {
-            try {
-
-                currentStatus.set(PRODUCT);
-                resetTableView();
-                Set<String> keySet = new HashSet<>();
-                keySet.add("0");
-                keySet.add("Greater than 0");
-                ChoiceDialog<String> dialog = new ChoiceDialog<>(keySet.iterator().next(), keySet);
-                Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-                stage.getIcons().add(new Image(javaFxHandling.getLogoResource().getInputStream()));
-                dialog.setHeaderText("Select option");
-                Optional<String> result = dialog.showAndWait();
-
-                if (result.isPresent()) {
-                    if (result.get().equals("0")) {
-                        this.csv = abioService.getAllProductsCSVByQuantity(authorizationToken, 0, 0);
-                    } else {
-                        this.csv = abioService.getAllProductsCSVByQuantity(authorizationToken, 0, 100);
-                    }
-                }
-                loadTable(csv);
-            } catch (Exception e) {
-                javaFxHandling.throwException(e.getMessage());
-            }
-        });
-
-        this.filterByQuantityServices.setOnAction(event -> {
-            try {
-
-                currentStatus.set(PRODUCT);
-                resetTableView();
-                Set<String> keySet = new HashSet<>();
-                keySet.add("0");
-                keySet.add("Greater than 0");
-                ChoiceDialog<String> dialog = new ChoiceDialog<>(keySet.iterator().next(), keySet);
-                Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-                stage.getIcons().add(new Image(javaFxHandling.getLogoResource().getInputStream()));
-                dialog.setHeaderText("Select option");
-                Optional<String> result = dialog.showAndWait();
-
-                if (result.isPresent()) {
-                    if (result.get().equals("0")) {
-                        this.csv = abioService.getAllProductsCSVByQuantity(authorizationToken, 1, 0);
-                    } else {
-                        this.csv = abioService.getAllProductsCSVByQuantity(authorizationToken, 1, 100);
-                    }
-                }
-                loadTable(csv);
-            } catch (Exception e) {
-                javaFxHandling.throwException(e.getMessage());
-            }
-        });
-
-        this.refreshServices.setOnAction(event -> {
-            try {
-                currentStatus.set(SERVICE);
-                resetTableView();
-                csv = abioService.getAllProductsCSV(authorizationToken, 1);
-                loadTable(csv);
-            } catch (Exception e) {
-                javaFxHandling.throwException(e.getMessage());
-            }
-        });
-
-        this.refreshGiftCards.setOnAction(event -> {
-            try {
-                currentStatus.set(GIFTCARD);
-                resetTableView();
-                csv = abioService.getAllProductsCSV(authorizationToken, 2);
-                loadTable(csv);
-            } catch (Exception e) {
-                javaFxHandling.throwException(e.getMessage());
-            }
-        });
 
         this.refreshOrders.setOnAction(event -> {
             try {
                 currentStatus.set(ORDER);
                 resetTableView();
-                csv = abioService.getOrderDetails(authorizationToken);
+                csv = orderService.getOrderDetails(authorizationToken);
                 loadTable(csv);
             } catch (Exception e) {
                 javaFxHandling.throwException(e.getMessage());
@@ -253,7 +193,7 @@ public class AdminController {
             try {
                 currentStatus.set(ORDER);
                 resetTableView();
-                csv = abioService.getNotPayedOrders(authorizationToken);
+                csv = orderService.getNotPayedOrders(authorizationToken);
                 loadTable(csv);
             } catch (Exception e) {
                 javaFxHandling.throwException(e.getMessage());
@@ -264,7 +204,7 @@ public class AdminController {
             try {
                 currentStatus.set(PROMOCODE);
                 resetTableView();
-                csv = abioService.getPromoCodes(authorizationToken);
+                csv = promoCodeService.getPromoCodes(authorizationToken);
                 loadTable(csv);
             } catch (Exception e) {
                 javaFxHandling.throwException(e.getMessage());
@@ -275,7 +215,7 @@ public class AdminController {
             try {
                 currentStatus.set(REGION_0);
                 resetTableView();
-                csv = abioService.getDeliveryRegions(authorizationToken, 0);
+                csv = deliverRegionService.getDeliveryRegions(authorizationToken, 0);
                 loadTable(csv);
             } catch (Exception e) {
                 javaFxHandling.throwException(e.getMessage());
@@ -286,7 +226,7 @@ public class AdminController {
             try {
                 currentStatus.set(REGION_1);
                 resetTableView();
-                csv = abioService.getDeliveryRegions(authorizationToken, 1);
+                csv = deliverRegionService.getDeliveryRegions(authorizationToken, 1);
                 loadTable(csv);
             } catch (Exception e) {
                 javaFxHandling.throwException(e.getMessage());
@@ -297,7 +237,7 @@ public class AdminController {
             try {
                 currentStatus.set(VIDEO);
                 resetTableView();
-                csv = abioService.getVideos(authorizationToken);
+                csv = videoService.getVideos(authorizationToken);
                 loadTable(csv);
             } catch (Exception e) {
                 javaFxHandling.throwException(e.getMessage());
@@ -308,7 +248,7 @@ public class AdminController {
             try {
                 currentStatus.set(BLACKLIST);
                 resetTableView();
-                csv = abioService.getBlacklistedCustomers(authorizationToken);
+                csv = blacklistCustomerService.getBlacklistedCustomers(authorizationToken);
                 loadTable(csv);
             } catch (Exception e) {
                 javaFxHandling.throwException(e.getMessage());
@@ -330,10 +270,10 @@ public class AdminController {
 
                 if (choose.isPresent() && choose.get() == ButtonType.OK) {
                     switch (this.currentStatus.get()) {
-                        case VIDEO -> abioService.deleteVideoById(authorizationToken, id);
-                        case BLACKLIST -> abioService.deleteBlacklistCustomerById(authorizationToken, id);
-                        case REGION_0, REGION_1 -> abioService.deleteRegionById(authorizationToken, id);
-                        case PROMOCODE -> abioService.deletePromoCodeById(authorizationToken, id);
+                        case VIDEO -> videoService.deleteVideoById(authorizationToken, id);
+                        case BLACKLIST -> blacklistCustomerService.deleteBlacklistCustomerById(authorizationToken, id);
+                        case REGION_0, REGION_1 -> deliverRegionService.deleteRegionById(authorizationToken, id);
+                        case PROMOCODE -> promoCodeService.deletePromoCodeById(authorizationToken, id);
                         default -> throw new Exception("Невозможно удалить. Разрешено только редактирование");
                     }
 
@@ -345,14 +285,15 @@ public class AdminController {
             }
         });
 
+
         this.updateButton.setOnAction(actionEvent -> {
 
             ObservableList<String> selectedItem = productTableView.getSelectionModel().getSelectedItem();
             switch (this.currentStatus.get()) {
-                case PRODUCT, SERVICE, GIFTCARD -> {
+                case PRODUCT -> {
                     try {
-                        ProductModelAdd product = JavaBeanToCSVConverter.convertListToProductModelAdmin(selectedItem);
-                        abioService.updateProduct(product, authorizationToken);
+                        ProductAdminDTO product = JavaBeanToCSVConverter.convertListToProductModelAdmin(selectedItem);
+                        productService.updateProduct(product, authorizationToken);
                         javaFxHandling.showAlert("Данные обновлены. Пожалуйста, обновите страницу, прежде чем что-то делать.");
 
                     } catch (Exception e) {
@@ -361,8 +302,8 @@ public class AdminController {
                 }
                 case VIDEO -> {
                     try {
-                        Video video = JavaBeanToCSVConverter.convertListToVideo(selectedItem);
-                        abioService.updateVideo(video, authorizationToken);
+                        VideoAdminDTO videoAdminDTO = JavaBeanToCSVConverter.convertListToVideo(selectedItem);
+                        videoService.updateVideo(videoAdminDTO, authorizationToken);
                         javaFxHandling.showAlert("Данные обновлены. Пожалуйста, обновите страницу, прежде чем что-то делать.");
                     } catch (Exception e) {
                         javaFxHandling.throwException(e.getMessage());
@@ -371,7 +312,7 @@ public class AdminController {
                 case BLACKLIST -> {
                     try {
                         BlacklistedCustomer customer = JavaBeanToCSVConverter.convertListToBlacklistCustomer(selectedItem);
-                        abioService.updateBlacklistedCustomer(customer, authorizationToken);
+                        blacklistCustomerService.updateBlacklistedCustomer(customer, authorizationToken);
                         javaFxHandling.showAlert("Данные обновлены. Пожалуйста, обновите страницу, прежде чем что-то делать.");
                     } catch (Exception e) {
                         javaFxHandling.throwException(e.getMessage());
@@ -380,7 +321,7 @@ public class AdminController {
                 case REGION_0, REGION_1 -> {
                     try {
                         DeliveryRegion region = JavaBeanToCSVConverter.convertListToDeliveryRegion(selectedItem);
-                        abioService.updateDeliveryRegion(region, authorizationToken);
+                        deliverRegionService.updateDeliveryRegion(region, authorizationToken);
                         javaFxHandling.showAlert("Данные обновлены. Пожалуйста, обновите страницу, прежде чем что-то делать.");
                     } catch (Exception e) {
                         javaFxHandling.throwException(e.getMessage());
@@ -390,7 +331,7 @@ public class AdminController {
                     try {
                         PromoCode promoCode = JavaBeanToCSVConverter.convertListToPromoCodeModel(selectedItem);
                         promoCode.setId(Long.valueOf(selectedItem.get(0)));
-                        abioService.updatePromoCode(promoCode, authorizationToken);
+                        promoCodeService.updatePromoCode(promoCode, authorizationToken);
                         javaFxHandling.showAlert("Данные обновлены. Пожалуйста, обновите страницу, прежде чем что-то делать.");
                     } catch (Exception e) {
                         javaFxHandling.throwException(e.getMessage());
@@ -429,7 +370,16 @@ public class AdminController {
                     return;
                 }
 
-                abioService.importCSV(DSSUtils.toByteArray(file), this.currentStatus.get(), authorizationToken);
+                switch (this.currentStatus.get()) {
+                    case PRODUCT -> productService.importCSV(DSSUtils.toByteArray(file), authorizationToken);
+                    case REGION_0, REGION_1 ->
+                            deliverRegionService.importCSV(DSSUtils.toByteArray(file), authorizationToken);
+                    case VIDEO -> videoService.importCSV(DSSUtils.toByteArray(file), authorizationToken);
+                    case BLACKLIST ->
+                            blacklistCustomerService.importCSV(DSSUtils.toByteArray(file), authorizationToken);
+                    default -> throw new Exception("Сначала выберите раздел.");
+                }
+
                 javaFxHandling.showAlert("Данные обновлены. Пожалуйста, обновите страницу, прежде чем что-то делать.");
 
             } catch (Exception e) {
@@ -447,7 +397,7 @@ public class AdminController {
                     return;
                 }
 
-                abioService.addPictures(authorizationToken, files);
+                productService.addPictures(authorizationToken, files);
 
                 javaFxHandling.showAlert("Добавлено успешно");
 
@@ -474,7 +424,7 @@ public class AdminController {
                         blacklistedCustomer.setPhoneNumber(phoneNumber.getText());
                         blacklistedCustomer.setReason(reason.getText());
                         try {
-                            abioService.addBlacklistCustomer(blacklistedCustomer, authorizationToken);
+                            blacklistCustomerService.addBlacklistCustomer(blacklistedCustomer, authorizationToken);
                             javaFxHandling.showAlert("Добавлено успешно");
                         } catch (Exception e) {
                             javaFxHandling.throwException(e.getMessage());
@@ -514,20 +464,20 @@ public class AdminController {
                     Button addButton = new Button("Добавлять");
 
                     addButton.setOnAction(actionEvent1 -> {
-                        Video video = new Video();
-                        video.setTitle_en(title_en.getText());
-                        video.setTitle_ru(title_ru.getText());
-                        video.setTitle_am(title_am.getText());
+                        VideoAdminDTO videoAdminDTO = new VideoAdminDTO();
+                        videoAdminDTO.setTitle_en(title_en.getText());
+                        videoAdminDTO.setTitle_ru(title_ru.getText());
+                        videoAdminDTO.setTitle_am(title_am.getText());
 
-                        video.setDescription_en(description_en.getText());
-                        video.setDescription_ru(description_ru.getText());
-                        video.setDescription_am(description_am.getText());
+                        videoAdminDTO.setDescription_en(description_en.getText());
+                        videoAdminDTO.setDescription_ru(description_ru.getText());
+                        videoAdminDTO.setDescription_am(description_am.getText());
 
-                        video.setDate(date.getText());
-                        video.setUrl(url.getText());
+                        videoAdminDTO.setDate(date.getText());
+                        videoAdminDTO.setUrl(url.getText());
 
                         try {
-                            abioService.addVideo(video, authorizationToken);
+                            videoService.addVideo(videoAdminDTO, authorizationToken);
                             javaFxHandling.showAlert("Добавлено успешно");
                         } catch (Exception e) {
                             javaFxHandling.throwException(e.getMessage());
@@ -572,7 +522,7 @@ public class AdminController {
 
                     addButton.setOnAction(actionEvent1 -> {
                         try {
-                            abioService.addDeliveryRegion(name_en.getText(), name_ru.getText(), name_am.getText(),
+                            deliverRegionService.addDeliveryRegion(name_en.getText(), name_ru.getText(), name_am.getText(),
                                     new BigDecimal(price.getText()), Integer.valueOf(bulky.getText()), authorizationToken);
                             javaFxHandling.showAlert("Добавлено успешно");
                         } catch (Exception e) {
@@ -631,9 +581,7 @@ public class AdminController {
                     promoCodeTypeComboBox.getItems().addAll(PromoCodeType.values());
 
                     promoCodeTypeComboBox.getSelectionModel().selectedItemProperty().addListener(
-                            (observableValue, promoCodeType, t1) -> {
-                                property.set(t1);
-                            });
+                            (observableValue, promoCodeType, t1) -> property.set(t1));
 
                     // Valid from date picker
                     Label validFromLabel = new Label("Valid From:");
@@ -684,7 +632,7 @@ public class AdminController {
                                 );
                             }
 
-                            abioService.addPromoCode(promoCode, authorizationToken);
+                            promoCodeService.addPromoCode(promoCode, authorizationToken);
                             javaFxHandling.showAlert("Добавлено успешно");
                         } catch (Exception e) {
                             javaFxHandling.throwException(e.getMessage());
@@ -763,6 +711,226 @@ public class AdminController {
         });
     }
 
+    private void initializeProductFilters() {
+
+        this.filterMenu.disableProperty().bind(this.currentStatus.isNotEqualTo(PRODUCT));
+
+        this.filterByQuantityProducts.setOnAction(event -> {
+            try {
+
+                currentStatus.set(PRODUCT);
+
+                // Create a grid pane for the filter field and label
+                GridPane grid = new GridPane();
+                grid.setHgap(10);
+                grid.setVgap(10);
+                grid.setPadding(new Insets(10, 10, 10, 10));
+
+                // Create a label for the filter field
+                Label filterLabel = new Label("Filter by quantity:");
+
+                // Create a text field for the quantity filter
+                TextField filterField = new TextField();
+                filterField.setPromptText(">x, <x, =x, >=x, <=x, x-y");
+
+                // Add the filter label and field to the grid
+                grid.add(filterLabel, 0, 0);
+                grid.add(filterField, 1, 0);
+
+                // Create a button to apply the filter
+                Button applyButton = new Button("Apply");
+                applyButton.setOnAction(actionEvent -> {
+                    try {
+                        this.csv = productService.getAllProductsCSVByQuantity(authorizationToken,  filterField.getText());
+                        resetTableView();
+                        loadTable(csv);
+                    } catch (Exception e) {
+                        javaFxHandling.throwException(e.getMessage());
+                    }
+                });
+
+                // Create a horizontal box for the button
+                HBox buttonBox = new HBox();
+                buttonBox.getChildren().add(applyButton);
+                buttonBox.setPadding(new Insets(10, 10, 10, 10));
+                buttonBox.setSpacing(10);
+
+                // Create a vertical box to hold the grid and button
+                VBox vbox = new VBox();
+                vbox.getChildren().addAll(grid, buttonBox);
+
+                // Set the scene
+                Scene scene = new Scene(vbox, 300, 100);
+                Stage stage = new Stage();
+                stage.setScene(scene);
+                stage.getIcons().add(new Image(javaFxHandling.getLogoResource().getInputStream()));
+
+                stage.showAndWait();
+
+            } catch (Exception e) {
+                javaFxHandling.throwException(e.getMessage());
+            }
+        });
+
+        this.filterByHavingTextInName.setOnAction(event -> {
+            try {
+
+                currentStatus.set(PRODUCT);
+
+                // Create a grid pane for the filter field and label
+                GridPane grid = new GridPane();
+                grid.setHgap(10);
+                grid.setVgap(10);
+                grid.setPadding(new Insets(10, 10, 10, 10));
+
+                // Create a label for the filter field
+                Label filterLabel = new Label("Search by name:");
+
+                // Create a text field for the quantity filter
+                TextField filterField = new TextField();
+
+                // Add the filter label and field to the grid
+                grid.add(filterLabel, 0, 0);
+                grid.add(filterField, 1, 0);
+
+                // Create a button to apply the filter
+                Button applyButton = new Button("Apply");
+                applyButton.setOnAction(actionEvent -> {
+                    try {
+                        this.csv = productService.getProductsByHavingName(authorizationToken,  filterField.getText());
+                        resetTableView();
+                        loadTable(csv);
+                    } catch (Exception e) {
+                        javaFxHandling.throwException(e.getMessage());
+                    }
+                });
+
+                // Create a horizontal box for the button
+                HBox buttonBox = new HBox();
+                buttonBox.getChildren().add(applyButton);
+                buttonBox.setPadding(new Insets(10, 10, 10, 10));
+                buttonBox.setSpacing(10);
+
+                // Create a vertical box to hold the grid and button
+                VBox vbox = new VBox();
+                vbox.getChildren().addAll(grid, buttonBox);
+
+                // Set the scene
+                Scene scene = new Scene(vbox, 300, 100);
+                Stage stage = new Stage();
+                stage.setScene(scene);
+                stage.getIcons().add(new Image(javaFxHandling.getLogoResource().getInputStream()));
+
+                stage.showAndWait();
+
+            } catch (Exception e) {
+                javaFxHandling.throwException(e.getMessage());
+            }
+        });
+
+        this.filterByProductCode.setOnAction(event -> {
+            try {
+
+                currentStatus.set(PRODUCT);
+
+                // Create a grid pane for the filter field and label
+                GridPane grid = new GridPane();
+                grid.setHgap(10);
+                grid.setVgap(10);
+                grid.setPadding(new Insets(10, 10, 10, 10));
+
+                // Create a label for the filter field
+                Label filterLabel = new Label("Search by product code:");
+
+                // Create a text field for the quantity filter
+                TextField filterField = new TextField();
+
+                // Add the filter label and field to the grid
+                grid.add(filterLabel, 0, 0);
+                grid.add(filterField, 1, 0);
+
+                // Create a button to apply the filter
+                Button applyButton = new Button("Apply");
+                applyButton.setOnAction(actionEvent -> {
+                    try {
+                        this.csv = productService.getProductByProductCode(authorizationToken,  filterField.getText());
+                        resetTableView();
+                        loadTable(csv);
+                    } catch (Exception e) {
+                        javaFxHandling.throwException(e.getMessage());
+                    }
+                });
+
+                // Create a horizontal box for the button
+                HBox buttonBox = new HBox();
+                buttonBox.getChildren().add(applyButton);
+                buttonBox.setPadding(new Insets(10, 10, 10, 10));
+                buttonBox.setSpacing(10);
+
+                // Create a vertical box to hold the grid and button
+                VBox vbox = new VBox();
+                vbox.getChildren().addAll(grid, buttonBox);
+
+                // Set the scene
+                Scene scene = new Scene(vbox, 310, 100);
+                Stage stage = new Stage();
+                stage.setScene(scene);
+                stage.getIcons().add(new Image(javaFxHandling.getLogoResource().getInputStream()));
+
+                stage.showAndWait();
+
+            } catch (Exception e) {
+                javaFxHandling.throwException(e.getMessage());
+            }
+        });
+
+        this.filterByHavingDescription.setOnAction(actionEvent -> {
+            try {
+                currentStatus.set(PRODUCT);
+                resetTableView();
+                Set<Boolean> keySet = new HashSet<>();
+                keySet.add(Boolean.TRUE);
+                keySet.add(Boolean.FALSE);
+                ChoiceDialog<Boolean> dialog = new ChoiceDialog<>(keySet.iterator().next(), keySet);
+                Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+                stage.getIcons().add(new Image(javaFxHandling.getLogoResource().getInputStream()));
+                dialog.setHeaderText("Выберите опцию");
+                Optional<Boolean> result = dialog.showAndWait();
+
+                if (result.isPresent()) {
+                    this.csv = productService.getProductsByHavingDescription(authorizationToken,  result.get());
+                }
+                loadTable(csv);
+            } catch (Exception e) {
+                javaFxHandling.throwException(e.getMessage());
+            }
+        });
+
+        this.filterByHavingPictures.setOnAction(actionEvent -> {
+            try {
+                currentStatus.set(PRODUCT);
+                resetTableView();
+                Set<Boolean> keySet = new HashSet<>();
+                keySet.add(Boolean.TRUE);
+                keySet.add(Boolean.FALSE);
+                ChoiceDialog<Boolean> dialog = new ChoiceDialog<>(keySet.iterator().next(), keySet);
+                Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+                stage.getIcons().add(new Image(javaFxHandling.getLogoResource().getInputStream()));
+                dialog.setHeaderText("Выберите опцию");
+                Optional<Boolean> result = dialog.showAndWait();
+
+                if (result.isPresent()) {
+                    this.csv = productService.getProductsByHavingPictures(authorizationToken,  result.get());
+                }
+
+                loadTable(csv);
+            } catch (Exception e) {
+                javaFxHandling.throwException(e.getMessage());
+            }
+        });
+
+    }
+
     private void loadTable(byte[] excelBytes) throws CsvValidationException, IOException {
         InMemoryDocument inMemoryDocument = new InMemoryDocument(excelBytes);
         try (CSVReader reader = new CSVReader(new InputStreamReader(inMemoryDocument.openStream()))) {
@@ -802,7 +970,7 @@ public class AdminController {
     }
 
     private void initializeTable() {
-        this.productTableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        this.productTableView.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         this.productTableView.setEditable(true);
     }
 

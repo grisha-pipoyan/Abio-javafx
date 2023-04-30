@@ -1,6 +1,6 @@
-package com.abio.csv.model;
+package com.abio.dto;
 
-public class Video {
+public class VideoAdminDTO {
     private Long Id;
     private String title_en;
     private String title_ru;
@@ -12,10 +12,10 @@ public class Video {
     private String date;
     private String url;
 
-    public Video() {
+    public VideoAdminDTO() {
     }
 
-    public Video(Long id, String title_en, String title_ru, String title_am, String description_en, String description_ru, String description_am, String date, String url) {
+    public VideoAdminDTO(Long id, String title_en, String title_ru, String title_am, String description_en, String description_ru, String description_am, String date, String url) {
         Id = id;
         this.title_en = title_en;
         this.title_ru = title_ru;

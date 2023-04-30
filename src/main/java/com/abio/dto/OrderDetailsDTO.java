@@ -1,9 +1,9 @@
-package com.abio.csv.model;
+package com.abio.dto;
 
 import java.math.BigDecimal;
 
 
-public class OrderDetailsModel {
+public class OrderDetailsDTO {
     private String Id;
     private String orderDateTime;
     private String address;
@@ -19,7 +19,7 @@ public class OrderDetailsModel {
     private String paymentType;
     private String transactionId;
 
-    public OrderDetailsModel(String id, String orderDateTime, String address, String date, String time, String comment, String first_name, String last_name, String email, String mobileNo, BigDecimal totalPrice, String paymentStatus, String paymentType, String transactionId) {
+    public OrderDetailsDTO(String id, String orderDateTime, String address, String date, String time, String comment, String first_name, String last_name, String email, String mobileNo, BigDecimal totalPrice, String paymentStatus, String paymentType, String transactionId) {
         Id = id;
         this.orderDateTime = orderDateTime;
         this.address = address;

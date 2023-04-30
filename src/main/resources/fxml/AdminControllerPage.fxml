@@ -10,24 +10,38 @@
 <?import javafx.scene.layout.BorderPane?>
 
 <BorderPane fx:id="globalPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.abio.controller.AdminController">
+   <center>
+      <TableView fx:id="productTableView" editable="true" prefHeight="489.0" prefWidth="1000.0" BorderPane.alignment="CENTER" />
+   </center>
+   <bottom>
+      <ButtonBar prefHeight="41.0" prefWidth="989.0" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets right="10.0" />
+         </BorderPane.margin>
+         <buttons>
+            <Button fx:id="importCSVButton" mnemonicParsing="false" stylesheets="@../css/updateButton.css" text="Import CSV" />
+            <Button fx:id="exportCSVButton" mnemonicParsing="false" stylesheets="@../css/updateButton.css" text="Export CSV" />
+            <Button fx:id="addRowButton" mnemonicParsing="false" stylesheets="@../css/updateButton.css" text="Добавить ряд" />
+            <Button fx:id="updateButton" mnemonicParsing="false" stylesheets="@../css/updateButton.css" text="Обновлять" />
+            <Button fx:id="deleteButton" mnemonicParsing="false" stylesheets="@../css/deleteButton.css" text="Удалить" />
+         </buttons>
+      </ButtonBar>
+   </bottom>
    <top>
       <MenuBar style="-fx-background-color: #B8D3F8;" BorderPane.alignment="CENTER">
         <menus>
+            <Menu fx:id="filterMenu" mnemonicParsing="false" text="Фильтр">
+               <items>
+                <MenuItem fx:id="filterByQuantityProducts" mnemonicParsing="false" text="Фильтровать по количеству" />
+                  <MenuItem fx:id="filterByHavingDescription" mnemonicParsing="false" text="Фильтровать по описанию" />
+                  <MenuItem fx:id="filterByHavingTextInName" mnemonicParsing="false" text="Фильтровать по названию" />
+                  <MenuItem fx:id="filterByProductCode" mnemonicParsing="false" text="Фильтровать по артикул" />
+                  <MenuItem fx:id="filterByHavingPictures" mnemonicParsing="false" text="Фильтровать по фото" />
+               </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Продукты">
             <items>
-                  <Menu mnemonicParsing="false" text="Обновить продукты">
-                    <items>
-                        <MenuItem fx:id="refreshProducts" mnemonicParsing="false" text="Обновить " />
-                      <MenuItem fx:id="filterByQuantityProducts" mnemonicParsing="false" text="Фильтровать по количеству" />
-                    </items>
-                  </Menu>
-                  <Menu mnemonicParsing="false" text="Обновить сервисы">
-                    <items>
-                        <MenuItem fx:id="refreshServices" mnemonicParsing="false" text="Обновить сервисы" />
-                      <MenuItem fx:id="filterByQuantityServices" mnemonicParsing="false" text="Фильтровать по количеству" />
-                    </items>
-                  </Menu>
-                  <MenuItem fx:id="refreshGiftCards" mnemonicParsing="false" text="Обновить подарочные карты" />
+                  <MenuItem fx:id="refreshProducts" mnemonicParsing="false" text="Обновить " />
                   <MenuItem fx:id="addProductPictures" mnemonicParsing="false" text="Добавьте фотографии товара" />
             </items>
           </Menu>
@@ -67,21 +81,4 @@
         </menus>
       </MenuBar>
    </top>
-   <center>
-      <TableView fx:id="productTableView" editable="true" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-   </center>
-   <bottom>
-      <ButtonBar prefHeight="41.0" prefWidth="989.0" BorderPane.alignment="CENTER">
-         <BorderPane.margin>
-            <Insets right="10.0" />
-         </BorderPane.margin>
-         <buttons>
-            <Button fx:id="importCSVButton" mnemonicParsing="false" stylesheets="@../css/updateButton.css" text="Import CSV" />
-            <Button fx:id="exportCSVButton" mnemonicParsing="false" stylesheets="@../css/updateButton.css" text="Export CSV" />
-            <Button fx:id="addRowButton" mnemonicParsing="false" stylesheets="@../css/updateButton.css" text="Добавить ряд" />
-            <Button fx:id="updateButton" mnemonicParsing="false" stylesheets="@../css/updateButton.css" text="Обновлять" />
-            <Button fx:id="deleteButton" mnemonicParsing="false" stylesheets="@../css/deleteButton.css" text="Удалить" />
-         </buttons>
-      </ButtonBar>
-   </bottom>
 </BorderPane>

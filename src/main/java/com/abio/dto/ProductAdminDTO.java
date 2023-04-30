@@ -1,6 +1,6 @@
-package com.abio.csv.model;
+package com.abio.dto;
 
-public class ProductModelAdd {
+public class ProductAdminDTO {
     private String productCode;
 
     private String name_en;
@@ -27,31 +27,11 @@ public class ProductModelAdd {
 
     private Integer bulky;
 
-    private Boolean display;
+    private Boolean enabled;
+    private Boolean hasPictures;
 
-    public ProductModelAdd(String productCode, String name_en, String name_ru, String name_am, String title_en, String title_ru, String title_am, String description_en, String description_ru, String description_am, Long category1, Long category2, Long category3, String color, String dimensions_en, String dimensions_ru, String dimensions_am, Integer bulky, Boolean display) {
-        this.productCode = productCode;
-        this.name_en = name_en;
-        this.name_ru = name_ru;
-        this.name_am = name_am;
-        this.title_en = title_en;
-        this.title_ru = title_ru;
-        this.title_am = title_am;
-        this.description_en = description_en;
-        this.description_ru = description_ru;
-        this.description_am = description_am;
-        this.category1 = category1;
-        this.category2 = category2;
-        this.category3 = category3;
-        this.color = color;
-        this.dimensions_en = dimensions_en;
-        this.dimensions_ru = dimensions_ru;
-        this.dimensions_am = dimensions_am;
-        this.bulky = bulky;
-        this.display = display;
-    }
 
-    public ProductModelAdd() {
+    public ProductAdminDTO() {
     }
 
     public String getProductCode() {
@@ -198,11 +178,19 @@ public class ProductModelAdd {
         this.bulky = bulky;
     }
 
-    public Boolean getDisplay() {
-        return display;
+    public Boolean getEnabled() {
+        return enabled;
     }
 
-    public void setDisplay(Boolean display) {
-        this.display = display;
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Boolean getHasPictures() {
+        return hasPictures;
+    }
+
+    public void setHasPictures(Boolean hasPictures) {
+        this.hasPictures = hasPictures;
     }
 }

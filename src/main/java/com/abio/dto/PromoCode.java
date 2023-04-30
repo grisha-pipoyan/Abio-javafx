@@ -1,4 +1,4 @@
-package com.abio.csv.model;
+package com.abio.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

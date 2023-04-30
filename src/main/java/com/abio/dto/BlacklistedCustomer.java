@@ -1,4 +1,4 @@
-package com.abio.csv.model;
+package com.abio.dto;
 
 public class BlacklistedCustomer {
     private Long Id;
