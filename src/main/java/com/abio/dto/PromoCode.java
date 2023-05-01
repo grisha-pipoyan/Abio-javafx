@@ -14,16 +14,24 @@ public class PromoCode {
     private LocalDate validFrom;
     private LocalDate validUntil;
     private List<Long> productCodes;
+    private BigDecimal minimumPurchase;
     private Integer maxApplications;
     private Integer currentApplications;
 
+    public PromoCode() {
+
+    }
+
     // Constructor for promo code with validity period
-    public PromoCode(String code, BigDecimal discount,
+    public PromoCode(String code,
+                     BigDecimal discount,
+                     BigDecimal minimumPurchase,
                      PromoCodeType promoCodeType,
                      LocalDate validFrom, LocalDate validUntil,
                      Integer maxApplications) {
         this.code = code;
         this.discount = discount;
+        this.minimumPurchase = minimumPurchase;
         this.promoCodeType = promoCodeType;
         this.validFrom = validFrom;
         this.validUntil = validUntil;
@@ -32,12 +40,16 @@ public class PromoCode {
     }
 
     // Constructor for promo code with specific product
-    public PromoCode(String code, BigDecimal discount,
-                     PromoCodeType promoCodeType, List<Long> productCodes,
+    public PromoCode(String code,
+                     BigDecimal discount,
+                     BigDecimal minimumPurchase,
+                     PromoCodeType promoCodeType,
+                     List<Long> productCodes,
                      LocalDate validFrom, LocalDate validUntil,
                      Integer maxApplications) {
         this.code = code;
         this.discount = discount;
+        this.minimumPurchase = minimumPurchase;
         this.promoCodeType = promoCodeType;
         this.productCodes = productCodes;
         this.validFrom = validFrom;
@@ -55,6 +67,14 @@ public class PromoCode {
     // Check if a promocode is exhausted based on its current and max application
     public boolean isExhausted() {
         return currentApplications >= maxApplications;
+    }
+
+    public BigDecimal getMinimumPurchase() {
+        return minimumPurchase;
+    }
+
+    public void setMinimumPurchase(BigDecimal minimumPurchase) {
+        this.minimumPurchase = minimumPurchase;
     }
 
     public Long getId() {

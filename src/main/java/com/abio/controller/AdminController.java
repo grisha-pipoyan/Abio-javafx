@@ -19,6 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -80,7 +81,7 @@ public class AdminController {
     private MenuItem refreshProducts;
 
     @FXML
-    private Menu filterMenu;
+    private Menu filsterMenu;
     @FXML
     private MenuItem filterByQuantityProducts;
     @FXML
@@ -177,7 +178,6 @@ public class AdminController {
             }
         });
 
-
         this.refreshOrders.setOnAction(event -> {
             try {
                 currentStatus.set(ORDER);
@@ -254,7 +254,6 @@ public class AdminController {
                 javaFxHandling.throwException(e.getMessage());
             }
         });
-
 
         this.deleteButton.setOnAction(event -> {
 
@@ -408,15 +407,34 @@ public class AdminController {
 
         this.addRowButton.setOnAction(actionEvent -> {
 
-            BorderPane borderPane = new BorderPane();
-            VBox vBox = new VBox();
-
             switch (this.currentStatus.get()) {
                 case BLACKLIST -> {
                     TextField email = new TextField();
                     TextField phoneNumber = new TextField();
                     TextField reason = new TextField();
                     Button addButton = new Button("Добавлять");
+
+                    GridPane gridPane = new GridPane();
+                    gridPane.setHgap(10);
+                    gridPane.setVgap(10);
+                    gridPane.setPadding(new Insets(10));
+
+                    Label emailLabel = new Label("Email:");
+                    emailLabel.setPadding(new Insets(5));
+                    gridPane.add(emailLabel, 0, 0);
+                    gridPane.add(email, 1, 0);
+
+                    Label phoneNumberLabel = new Label("Номер телефона:");
+                    phoneNumberLabel.setPadding(new Insets(5));
+                    gridPane.add(phoneNumberLabel, 0, 1);
+                    gridPane.add(phoneNumber, 1, 1);
+
+                    Label reasonLabel = new Label("Причина:");
+                    reasonLabel.setPadding(new Insets(5));
+                    gridPane.add(reasonLabel, 0, 2);
+                    gridPane.add(reason, 1, 2);
+
+                    gridPane.add(addButton, 0, 3, 2, 1);
 
                     addButton.setOnAction(actionEvent1 -> {
                         BlacklistedCustomer blacklistedCustomer = new BlacklistedCustomer();
@@ -431,50 +449,54 @@ public class AdminController {
                         }
                     });
 
-                    vBox.getChildren().addAll(new Label("Email"),
-                            email,
-                            new Label("Phone number"),
-                            phoneNumber,
-                            new Label("Причина"),
-                            reason,
-                            addButton);
-                    borderPane.setCenter(vBox);
-
                     Stage stage = new Stage();
-                    Scene scene = new Scene(borderPane, 300, 170);
+                    Scene scene = new Scene(gridPane, 300, 200);
                     stage.setScene(scene);
-                    stage.setTitle("Add black list customer");
+                    stage.setTitle("Добавить клиента в черный список");
                     stage.initStyle(StageStyle.UTILITY);
                     stage.setResizable(false);
                     stage.showAndWait();
                 }
                 case VIDEO -> {
 
-                    TextField title_en = new TextField();
-                    TextField title_ru = new TextField();
-                    TextField title_am = new TextField();
+                    GridPane gridPane = new GridPane();
+                    gridPane.setHgap(10);
+                    gridPane.setVgap(10);
+                    gridPane.setPadding(new Insets(10, 10, 10, 10));
 
-                    TextField description_en = new TextField();
-                    TextField description_ru = new TextField();
-                    TextField description_am = new TextField();
-                    TextField date = new TextField();
+                    Label titleEnLabel = new Label("Title EN:");
+                    TextField titleEnField = new TextField();
+                    Label titleRuLabel = new Label("Title RU:");
+                    TextField titleRuField = new TextField();
+                    Label titleAmLabel = new Label("Title AM:");
+                    TextField titleAmField = new TextField();
 
-                    TextField url = new TextField();
+                    Label descriptionEnLabel = new Label("Description EN:");
+                    TextField descriptionEnField = new TextField();
+                    Label descriptionRuLabel = new Label("Description RU:");
+                    TextField descriptionRuField = new TextField();
+                    Label descriptionAmLabel = new Label("Description AM:");
+                    TextField descriptionAmField = new TextField();
+
+                    Label urlLabel = new Label("URL:");
+                    TextField urlField = new TextField();
+
+                    Label dateLabel = new Label("Date:");
+                    TextField dateField = new TextField();
 
                     Button addButton = new Button("Добавлять");
-
                     addButton.setOnAction(actionEvent1 -> {
                         VideoAdminDTO videoAdminDTO = new VideoAdminDTO();
-                        videoAdminDTO.setTitle_en(title_en.getText());
-                        videoAdminDTO.setTitle_ru(title_ru.getText());
-                        videoAdminDTO.setTitle_am(title_am.getText());
+                        videoAdminDTO.setTitle_en(titleEnField.getText());
+                        videoAdminDTO.setTitle_ru(titleRuField.getText());
+                        videoAdminDTO.setTitle_am(titleAmField.getText());
 
-                        videoAdminDTO.setDescription_en(description_en.getText());
-                        videoAdminDTO.setDescription_ru(description_ru.getText());
-                        videoAdminDTO.setDescription_am(description_am.getText());
+                        videoAdminDTO.setDescription_en(descriptionEnField.getText());
+                        videoAdminDTO.setDescription_ru(descriptionRuField.getText());
+                        videoAdminDTO.setDescription_am(descriptionAmField.getText());
 
-                        videoAdminDTO.setDate(date.getText());
-                        videoAdminDTO.setUrl(url.getText());
+                        videoAdminDTO.setDate(dateField.getText());
+                        videoAdminDTO.setUrl(urlField.getText());
 
                         try {
                             videoService.addVideo(videoAdminDTO, authorizationToken);
@@ -484,35 +506,40 @@ public class AdminController {
                         }
                     });
 
-                    vBox.getChildren().addAll(
-                            new Label("Title EN"),
-                            title_en,
-                            new Label("Title RU"),
-                            title_ru,
-                            new Label("Title AM"),
-                            title_am,
-                            new Label("Description EN"),
-                            description_en,
-                            new Label("Description RU"),
-                            description_ru,
-                            new Label("Description AM"),
-                            description_am,
-                            new Label("URL"),
-                            date,
-                            new Label("Date"),
-                            url,
-                            addButton);
-                    borderPane.setCenter(vBox);
+                    gridPane.add(titleEnLabel, 0, 0);
+                    gridPane.add(titleEnField, 1, 0);
+                    gridPane.add(titleRuLabel, 0, 1);
+                    gridPane.add(titleRuField, 1, 1);
+                    gridPane.add(titleAmLabel, 0, 2);
+                    gridPane.add(titleAmField, 1, 2);
+                    gridPane.add(descriptionEnLabel, 0, 3);
+                    gridPane.add(descriptionEnField, 1, 3);
+                    gridPane.add(descriptionRuLabel, 0, 4);
+                    gridPane.add(descriptionRuField, 1, 4);
+                    gridPane.add(descriptionAmLabel, 0, 5);
+                    gridPane.add(descriptionAmField, 1, 5);
+                    gridPane.add(urlLabel, 0, 6);
+                    gridPane.add(urlField, 1, 6);
+                    gridPane.add(dateLabel, 0, 7);
+                    gridPane.add(dateField, 1, 7);
+                    gridPane.add(addButton, 1, 8);
 
                     Stage stage = new Stage();
-                    Scene scene = new Scene(borderPane, 300, 370);
+                    Scene scene = new Scene(gridPane, 270, 350);
                     stage.setScene(scene);
-                    stage.setTitle("Add video url");
+                    stage.setTitle("Добавить ссылку на видео");
                     stage.initStyle(StageStyle.UTILITY);
                     stage.setResizable(false);
                     stage.showAndWait();
+
                 }
                 case REGION_0, REGION_1 -> {
+
+                    GridPane gridPane = new GridPane();
+                    gridPane.setHgap(10);
+                    gridPane.setVgap(10);
+                    gridPane.setPadding(new Insets(10, 10, 10, 10));
+
                     TextField name_en = new TextField();
                     TextField name_ru = new TextField();
                     TextField name_am = new TextField();
@@ -530,24 +557,24 @@ public class AdminController {
                         }
                     });
 
-                    vBox.getChildren().addAll(
-                            new Label("English"),
-                            name_en,
-                            new Label("Russian"),
-                            name_ru,
-                            new Label("Armenian"),
-                            name_am,
-                            new Label("Price"),
-                            price,
-                            new Label("Bulky"),
-                            bulky,
-                            addButton);
-                    borderPane.setCenter(vBox);
+
+                    gridPane.add(new Label("English"), 0, 0);
+                    gridPane.add(name_en, 1, 0);
+                    gridPane.add(new Label("Russian"), 0, 1);
+                    gridPane.add(name_ru, 1, 1);
+                    gridPane.add(new Label("Armenian"), 0, 2);
+                    gridPane.add(name_am, 1, 2);
+                    gridPane.add(new Label("Цена"), 0, 3);
+                    gridPane.add(price, 1, 3);
+                    gridPane.add(new Label("Гоборит"), 0, 4);
+                    gridPane.add(bulky, 1, 4);
+                    gridPane.add(addButton, 1, 5);
+
 
                     Stage stage = new Stage();
-                    Scene scene = new Scene(borderPane, 300, 300);
+                    Scene scene = new Scene(gridPane, 250, 250);
                     stage.setScene(scene);
-                    stage.setTitle("Add delivery region url");
+                    stage.setTitle("Добавить регион доставки");
                     stage.initStyle(StageStyle.UTILITY);
                     stage.setResizable(false);
                     stage.showAndWait();
@@ -557,61 +584,54 @@ public class AdminController {
 
                     SimpleObjectProperty<PromoCodeType> property = new SimpleObjectProperty<>(null);
 
-                    TextField codeField;
-                    TextField discountField;
-                    ComboBox<PromoCodeType> promoCodeTypeComboBox;
-                    DatePicker validFromPicker;
-                    DatePicker validUntilPicker;
-                    TextField minPurchaseAmountField;
-                    TextField productCodeField;
-                    TextField maxApplicationsField;
+                    TextField codeField = new TextField();
+                    TextField discountField = new TextField();
+                    ComboBox<PromoCodeType> promoCodeTypeComboBox = new ComboBox<>();
+                    DatePicker validFromPicker = new DatePicker();
+                    DatePicker validUntilPicker = new DatePicker();
+                    TextField minPurchaseAmountField = new TextField();
+                    TextField productCodeField = new TextField();
+                    TextField maxApplicationsField = new TextField();
+
+                    Label codeLabel = new Label("Код:");
+                    Label discountLabel = new Label("Скидка:");
+                    Label promoCodeTypeLabel = new Label("Тип промокода:");
+                    Label validFromLabel = new Label("Действителен с:");
+                    Label validUntilLabel = new Label("Действителен до:");
+                    Label minPurchaseAmountLabel = new Label("Мин. сумма:");
+                    Label productCodeLabel = new Label("Коды продуктов:");
+                    Label maxApplicationsLabel = new Label("Максимальное количество применении:");
                     Button addButton = new Button("Добавлять");
 
-                    // Code field
-                    Label codeLabel = new Label("Code:");
-                    codeField = new TextField();
-
-                    // Discount field
-                    Label discountLabel = new Label("Discount:");
-                    discountField = new TextField();
-
-                    // Promo code type combo box
-                    Label promoCodeTypeLabel = new Label("Promo Code Type:");
-                    promoCodeTypeComboBox = new ComboBox<>();
                     promoCodeTypeComboBox.getItems().addAll(PromoCodeType.values());
-
                     promoCodeTypeComboBox.getSelectionModel().selectedItemProperty().addListener(
                             (observableValue, promoCodeType, t1) -> property.set(t1));
 
-                    // Valid from date picker
-                    Label validFromLabel = new Label("Valid From:");
-                    validFromPicker = new DatePicker();
-                    validFromPicker.setPromptText("Select date");
+                    productCodeField.disableProperty().bind(property.isEqualTo(PromoCodeType.VALIDITY_PERIOD));
 
-                    // Valid until date picker
-                    Label validUntilLabel = new Label("Valid Until:");
-                    validUntilPicker = new DatePicker();
-                    validUntilPicker.setPromptText("Select date");
+                    // Setting up the layout
+                    GridPane gridPane = new GridPane();
+                    gridPane.setHgap(10);
+                    gridPane.setVgap(10);
+                    gridPane.setPadding(new Insets(10, 10, 10, 10));
 
-                    // Minimum purchase amount field
-//                    Label minPurchaseAmountLabel = new Label("Minimum Purchase Amount:");
-//                    minPurchaseAmountField = new TextField();
-
-//                    minPurchaseAmountField.disableProperty().bind(property.isEqualTo(PromoCodeType.CERTAIN_PRODUCT)
-//                            .or(property.isEqualTo(PromoCodeType.VALIDITY_PERIOD)));
-
-
-                    // Product code field
-                    Label productCodeLabel = new Label("Product Code:");
-                    productCodeField = new TextField();
-
-                    productCodeField.disableProperty().bind(property.isEqualTo(PromoCodeType.PURCHASE_AMOUNT)
-                            .or(property.isEqualTo(PromoCodeType.VALIDITY_PERIOD)));
-
-                    // Max applications field
-                    Label maxApplicationsLabel = new Label("Max Applications:");
-                    maxApplicationsField = new TextField();
-
+                    gridPane.add(codeLabel, 0, 0);
+                    gridPane.add(codeField, 1, 0);
+                    gridPane.add(discountLabel, 0, 1);
+                    gridPane.add(discountField, 1, 1);
+                    gridPane.add(promoCodeTypeLabel, 0, 2);
+                    gridPane.add(promoCodeTypeComboBox, 1, 2);
+                    gridPane.add(validFromLabel, 0, 3);
+                    gridPane.add(validFromPicker, 1, 3);
+                    gridPane.add(validUntilLabel, 0, 4);
+                    gridPane.add(validUntilPicker, 1, 4);
+                    gridPane.add(minPurchaseAmountLabel, 0, 5);
+                    gridPane.add(minPurchaseAmountField, 1, 5);
+                    gridPane.add(productCodeLabel, 0, 6);
+                    gridPane.add(productCodeField, 1, 6);
+                    gridPane.add(maxApplicationsLabel, 0, 7);
+                    gridPane.add(maxApplicationsField, 1, 7);
+                    gridPane.add(addButton, 0, 8, 2, 1);
 
                     addButton.setOnAction(actionEvent1 -> {
                         try {
@@ -619,12 +639,14 @@ public class AdminController {
                             switch (promoCodeTypeComboBox.getSelectionModel().getSelectedItem()) {
                                 case VALIDITY_PERIOD -> promoCode = new PromoCode(
                                         codeField.getText(), new BigDecimal(discountField.getText()),
+                                        new BigDecimal(minPurchaseAmountField.getText()),
                                         promoCodeTypeComboBox.getSelectionModel().getSelectedItem(),
                                         validFromPicker.getValue(), validUntilPicker.getValue(),
                                         Integer.valueOf(maxApplicationsField.getText())
                                 );
                                 case CERTAIN_PRODUCT -> promoCode = new PromoCode(
                                         codeField.getText(), new BigDecimal(discountField.getText()),
+                                        new BigDecimal(minPurchaseAmountField.getText()),
                                         promoCodeTypeComboBox.getSelectionModel().getSelectedItem(),
                                         convertStringToLong(productCodeField.getText()),
                                         validFromPicker.getValue(), validUntilPicker.getValue(),
@@ -639,22 +661,11 @@ public class AdminController {
                         }
                     });
 
-                    vBox.getChildren().addAll(
-                            codeLabel, codeField,
-                            discountLabel, discountField,
-                            promoCodeTypeLabel, promoCodeTypeComboBox,
-                            validFromLabel, validFromPicker,
-                            validUntilLabel, validUntilPicker,
-                            //minPurchaseAmountLabel, minPurchaseAmountField,
-                            productCodeLabel, productCodeField,
-                            maxApplicationsLabel, maxApplicationsField,
-                            addButton);
-                    borderPane.setCenter(vBox);
 
                     Stage stage = new Stage();
-                    Scene scene = new Scene(borderPane, 300, 450);
+                    Scene scene = new Scene(gridPane, 300, 350);
                     stage.setScene(scene);
-                    stage.setTitle("Add promo code");
+                    stage.setTitle("Добавить промокод");
                     stage.initStyle(StageStyle.UTILITY);
                     stage.setResizable(false);
                     stage.showAndWait();
@@ -713,7 +724,18 @@ public class AdminController {
 
     private void initializeProductFilters() {
 
-        this.filterMenu.disableProperty().bind(this.currentStatus.isNotEqualTo(PRODUCT));
+        //this.filterMenu.disableProperty().bind(this.currentStatus.isNotEqualTo(PRODUCT));
+
+        // Set the key combination
+        this.filterByQuantityProducts.setAccelerator(KeyCombination.keyCombination("Ctrl+Q"));
+
+        this.filterByHavingTextInName.setAccelerator(KeyCombination.keyCombination("Ctrl+N"));
+
+        this.filterByProductCode.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+
+        this.filterByHavingDescription.setAccelerator(KeyCombination.keyCombination("Ctrl+d"));
+
+        this.filterByHavingPictures.setAccelerator(KeyCombination.keyCombination("Ctrl+p"));
 
         this.filterByQuantityProducts.setOnAction(event -> {
             try {
@@ -727,7 +749,7 @@ public class AdminController {
                 grid.setPadding(new Insets(10, 10, 10, 10));
 
                 // Create a label for the filter field
-                Label filterLabel = new Label("Filter by quantity:");
+                Label filterLabel = new Label("Фильтровать по количеству:");
 
                 // Create a text field for the quantity filter
                 TextField filterField = new TextField();
@@ -738,10 +760,10 @@ public class AdminController {
                 grid.add(filterField, 1, 0);
 
                 // Create a button to apply the filter
-                Button applyButton = new Button("Apply");
+                Button applyButton = new Button("Применять");
                 applyButton.setOnAction(actionEvent -> {
                     try {
-                        this.csv = productService.getAllProductsCSVByQuantity(authorizationToken,  filterField.getText());
+                        this.csv = productService.getAllProductsCSVByQuantity(authorizationToken, filterField.getText());
                         resetTableView();
                         loadTable(csv);
                     } catch (Exception e) {
@@ -760,7 +782,7 @@ public class AdminController {
                 vbox.getChildren().addAll(grid, buttonBox);
 
                 // Set the scene
-                Scene scene = new Scene(vbox, 300, 100);
+                Scene scene = new Scene(vbox, 325, 100);
                 Stage stage = new Stage();
                 stage.setScene(scene);
                 stage.getIcons().add(new Image(javaFxHandling.getLogoResource().getInputStream()));
@@ -784,7 +806,7 @@ public class AdminController {
                 grid.setPadding(new Insets(10, 10, 10, 10));
 
                 // Create a label for the filter field
-                Label filterLabel = new Label("Search by name:");
+                Label filterLabel = new Label("Поиск по имени:");
 
                 // Create a text field for the quantity filter
                 TextField filterField = new TextField();
@@ -794,10 +816,10 @@ public class AdminController {
                 grid.add(filterField, 1, 0);
 
                 // Create a button to apply the filter
-                Button applyButton = new Button("Apply");
+                Button applyButton = new Button("Применять");
                 applyButton.setOnAction(actionEvent -> {
                     try {
-                        this.csv = productService.getProductsByHavingName(authorizationToken,  filterField.getText());
+                        this.csv = productService.getProductsByHavingName(authorizationToken, filterField.getText());
                         resetTableView();
                         loadTable(csv);
                     } catch (Exception e) {
@@ -840,7 +862,7 @@ public class AdminController {
                 grid.setPadding(new Insets(10, 10, 10, 10));
 
                 // Create a label for the filter field
-                Label filterLabel = new Label("Search by product code:");
+                Label filterLabel = new Label("Поиск по артикулу:");
 
                 // Create a text field for the quantity filter
                 TextField filterField = new TextField();
@@ -850,10 +872,10 @@ public class AdminController {
                 grid.add(filterField, 1, 0);
 
                 // Create a button to apply the filter
-                Button applyButton = new Button("Apply");
+                Button applyButton = new Button("Применять");
                 applyButton.setOnAction(actionEvent -> {
                     try {
-                        this.csv = productService.getProductByProductCode(authorizationToken,  filterField.getText());
+                        this.csv = productService.getProductByProductCode(authorizationToken, filterField.getText());
                         resetTableView();
                         loadTable(csv);
                     } catch (Exception e) {
@@ -898,7 +920,7 @@ public class AdminController {
                 Optional<Boolean> result = dialog.showAndWait();
 
                 if (result.isPresent()) {
-                    this.csv = productService.getProductsByHavingDescription(authorizationToken,  result.get());
+                    this.csv = productService.getProductsByHavingDescription(authorizationToken, result.get());
                 }
                 loadTable(csv);
             } catch (Exception e) {
@@ -920,7 +942,7 @@ public class AdminController {
                 Optional<Boolean> result = dialog.showAndWait();
 
                 if (result.isPresent()) {
-                    this.csv = productService.getProductsByHavingPictures(authorizationToken,  result.get());
+                    this.csv = productService.getProductsByHavingPictures(authorizationToken, result.get());
                 }
 
                 loadTable(csv);

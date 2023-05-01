@@ -35,7 +35,7 @@
                 <MenuItem fx:id="filterByQuantityProducts" mnemonicParsing="false" text="Фильтровать по количеству" />
                   <MenuItem fx:id="filterByHavingDescription" mnemonicParsing="false" text="Фильтровать по описанию" />
                   <MenuItem fx:id="filterByHavingTextInName" mnemonicParsing="false" text="Фильтровать по названию" />
-                  <MenuItem fx:id="filterByProductCode" mnemonicParsing="false" text="Фильтровать по артикул" />
+                  <MenuItem fx:id="filterByProductCode" mnemonicParsing="false" text="Поиск по артикулу" />
                   <MenuItem fx:id="filterByHavingPictures" mnemonicParsing="false" text="Фильтровать по фото" />
                </items>
             </Menu>

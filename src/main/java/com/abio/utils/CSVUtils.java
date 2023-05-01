@@ -43,7 +43,7 @@ public class CSVUtils {
     public static String[] promoCodeColumns = {
             "Id", "code", "discount", "promoCodeType",
             "validFrom", "validUntil",
-            "productCodes", "maxApplications", "currentApplications"
+            "productCodes", "minimumPurchase", "maxApplications", "currentApplications"
     };
 
     public static <T> byte[] convertProductToCSV(T[] beans, String[] columns) throws IOException {

@@ -109,8 +109,11 @@ public class JavaBeanToCSVConverter {
         switch (promoCodeType) {
             case CERTAIN_PRODUCT -> {
                 return new PromoCode(
-                        element.get(1), new BigDecimal(element.get(2)),
-                        promoCodeType, convertStringToLong(element.get(7)),
+                        element.get(1),
+                        new BigDecimal(element.get(2)),
+                        new BigDecimal(element.get(7)),
+                        promoCodeType,
+                        convertStringToLong(element.get(6)),
                         LocalDate.parse(element.get(4)),
                         LocalDate.parse(element.get(5)),
                         Integer.valueOf(element.get(8))
@@ -118,7 +121,9 @@ public class JavaBeanToCSVConverter {
             }
             case VALIDITY_PERIOD -> {
                 return new PromoCode(
-                        element.get(1), new BigDecimal(element.get(2)),
+                        element.get(1),
+                        new BigDecimal(element.get(2)),
+                        new BigDecimal(element.get(7)),
                         promoCodeType,
                         LocalDate.parse(element.get(4)),
                         LocalDate.parse(element.get(5)),
